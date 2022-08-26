@@ -12,9 +12,9 @@ const {
 
 userRoutes.get('/users', express.json(), getUsers);
 
-userRoutes.get('/users/:userId', getUserById);
-
 userRoutes.post('/users', express.json(), createUser);
+
+userRoutes.get('/users/:userId', getUserById);
 
 userRoutes.patch('/users/me', express.json(), updateUser);
 
