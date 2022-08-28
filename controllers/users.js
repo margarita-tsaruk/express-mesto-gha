@@ -16,13 +16,9 @@ const getUsers = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  User.create({ name, about, avatar }, { new: true, runValidators: true })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(errorBadReq).send({ message: 'Переданы некорректные данные при создании пользователя' });
-        return;
-      }
       res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
     });
 };
