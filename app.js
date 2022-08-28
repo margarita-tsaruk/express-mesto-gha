@@ -20,6 +20,7 @@ main();
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const allRoutes = require('./routes/notCorrectPath');
 
 app.use((req, res, next) => {
   req.user = {
@@ -31,3 +32,4 @@ app.use((req, res, next) => {
 
 app.use('/', userRouter);
 app.use('/', cardRouter);
+app.use('*', allRoutes);

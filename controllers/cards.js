@@ -72,7 +72,7 @@ const dislikeCard = (req, res) => {
         res.status(errorReqNotFound).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
-      res.send(card);
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
