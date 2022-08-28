@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const {
+  okRequest,
   errorBadReq,
   errorReqNotFound,
   errorServer,
@@ -19,19 +20,26 @@ const createUser = (req, res) => {
   User.create({ name, about, avatar }, { new: true, runValidators: true })
     .then((user) => res.send(user))
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(errorBadReq).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        return;
+      }
       res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
     });
 };
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
-  User.findById(userId)
+  User.findById(userId, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
       if (!user) {
         res.status(errorReqNotFound).send({ message: 'Пользователь с указанным _id не найден' });
         return;
       }
-      res.send(user);
+      res.status(okRequest).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
