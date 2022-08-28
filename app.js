@@ -19,7 +19,7 @@ async function main() {
 main();
 
 const userRouter = require('./routes/users');
-const cardRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
 app.use((req, res, next) => {
   req.user = {

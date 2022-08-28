@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "backend-mesto-project",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/margarita-tsaruk/express-mesto-gha.git"
   },
-  "author": "",
+  "author": "Margarita Tsaruk",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/margarita-tsaruk/express-mesto-gha/issues"
