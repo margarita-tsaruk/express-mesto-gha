@@ -29,10 +29,7 @@ const createUser = (req, res) => {
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
-  User.findById(userId, {
-    new: true,
-    runValidators: true,
-  })
+  User.findById(userId)
     .then((user) => {
       if (!user) {
         res.status(errorReqNotFound).send({ message: 'Пользователь с указанным _id не найден' });
