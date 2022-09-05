@@ -3,7 +3,6 @@ const express = require('express');
 const userRoutes = express.Router();
 
 const {
-  createUser,
   getUsers,
   getUserById,
   updateUser,
@@ -11,8 +10,6 @@ const {
 } = require('../controllers/users');
 
 userRoutes.get('/users', express.json(), getUsers);
-
-userRoutes.post('/users', express.json(), createUser);
 
 userRoutes.get('/users/:userId', getUserById);
 

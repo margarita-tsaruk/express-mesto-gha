@@ -3,7 +3,6 @@ const {
   errorBadReq,
   errorReqNotFound,
   errorServer,
-
 } = require('../errorCodes');
 
 const getCards = (req, res) => {
