@@ -1,5 +1,5 @@
 const express = require('express');
-const { errorReqNotFound } = require('../errorCodes');
+const { errorReqNotFound } = require('../errors/errorCodes');
 
 const notCorrectPath = express.Router();
 

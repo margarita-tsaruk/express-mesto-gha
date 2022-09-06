@@ -3,7 +3,7 @@ const {
   errorBadReq,
   errorReqNotFound,
   errorServer,
-} = require('../errorCodes');
+} = require('../errors/errorCodes');
 
 const getCards = (req, res) => {
   Card.find({})
