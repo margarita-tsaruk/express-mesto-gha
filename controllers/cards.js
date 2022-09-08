@@ -25,17 +25,23 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
+  const userObject = jwt.verify(req.cookies.jwt);
+  const userId = userObject._id;
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new ErrorReqNotFound('Карточка с указанным _id не найдена');
       }
-      res.send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new ErrorBadReq('Передан некорректный id');
+      if (card.owner.toString() !== userId) {
+        throw new ErrorForbiddenReq('Нет прав на удаление карточки');
+      } else {
+        Card.findByIdAndRemove(cardId)
+          .then((removedCard) => {
+            res.send(removedCard);
+          })
+          .catch(next);
       }
     })
     .catch(next);

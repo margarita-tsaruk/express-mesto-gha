@@ -15,13 +15,13 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   const userId = req.user._id;
-  console.log(userId);
   User.findById(userId)
     .then((user) => {
       if (!user) {
         next(new ErrorReqNotFound('Пользователь с указанным _id не найден'));
+      } else {
+        res.send(user);
       }
-      res.send(user);
     })
     .catch((err) => {
       next(err);
@@ -87,7 +87,8 @@ const login = (req, res, next) => {
           } else {
             throw new ErrorForbiddenReq('Неправильные почта или пароль');
           }
-        });
+        })
+        .catch(next);
     })
     .catch(next);
 };
