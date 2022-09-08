@@ -1,84 +1,79 @@
+const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
-const {
-  errorBadReq,
-  errorReqNotFound,
-  errorServer,
-} = require('../errors/errorCodes');
 
-const getCards = (req, res) => {
+const ErrorReqNotFound = require('../errors/errorReqNotFound');
+const ErrorBadReq = require('../errors/errorBadReq');
+const ErrorForbiddenReq = require('../errors/errorForbiddenReq');
+
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(errorServer).send({ message: `Произошла ошибка: ${err}` }));
+    .catch(next);
 };
 
-const createCards = (req, res) => {
+const createCards = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(errorBadReq).send({ message: 'Переданы некорректные данные при создании карточки' });
-        return;
+        throw new ErrorBadReq('Переданы некорректные данные при создании карточки');
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
-    });
+    })
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
-        res.status(errorReqNotFound).send({ message: 'Карточка с указанным _id не найдена' });
-        return;
+        throw new ErrorReqNotFound('Карточка с указанным _id не найдена');
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(errorBadReq).send({ message: 'Передан некорректный id' });
-        return;
+        throw new ErrorBadReq('Передан некорректный id');
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
-    });
+    })
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        res.status(errorReqNotFound).send({ message: 'Передан несуществующий _id карточки.' });
-        return;
+        throw new ErrorReqNotFound('Передан несуществующий _id карточки.');
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(errorBadReq).send({ message: 'Передан некорректный id' });
-        return;
+        next(new ErrorBadReq('Передан некорректный id'));
+      } else {
+        next(err);
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        res.status(errorReqNotFound).send({ message: 'Передан несуществующий _id карточки.' });
-        return;
+        throw new ErrorReqNotFound('Передан несуществующий _id карточки.');
       }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(errorBadReq).send({ message: 'Передан некорректный id' });
-        return;
+        throw new ErrorBadReq('Передан некорректный id');
+      } else {
+        next(err);
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
     });
 };
 

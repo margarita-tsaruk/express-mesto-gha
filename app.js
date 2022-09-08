@@ -9,6 +9,8 @@ const {
 const { PORT = 3000 } = process.env;
 
 const app = express();
+const auth = require('./middlewares/auth');
+const errorHandler = require('./errors/errorhandler');
 
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -25,11 +27,6 @@ main();
 
 app.use(cookieParser());
 
-const userRouter = require('./routes/users');
-const cardRouter = require('./routes/cards');
-const allRoutes = require('./routes/notCorrectPath');
-const auth = require('./middlewares/auth');
-
 app.post('/signup', express.json(), createUser);
 app.post('/signin', express.json(), login);
 
@@ -43,6 +40,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', userRouter);
-app.use('/', cardRouter);
-app.use('*', allRoutes);
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
+app.use('*', require('./routes/notCorrectPath'));
+
+app.use(errorHandler);

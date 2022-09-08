@@ -2,17 +2,31 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const errorReqNotFound = require('../errors/errorReqNotFound');
-const errorBadReq = require('../errors/errorBadReq');
-const errorForbiddenReq = require('../errors/errorForbiddenReq');
-const errorServer = require('../errors/errorServer');
+const ErrorReqNotFound = require('../errors/errorReqNotFound');
+const ErrorBadReq = require('../errors/errorBadReq');
+const ErrorForbiddenReq = require('../errors/errorForbiddenReq');
+const AuthError = require('../errors/authError');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
+    .catch(next);
+};
+
+const getUser = (req, res, next) => {
+  const userId = req.user._id;
+  console.log(userId);
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        next(new ErrorReqNotFound('Пользователь с указанным _id не найден'));
+      }
+      res.send(user);
+    })
     .catch((err) => {
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
@@ -32,15 +46,18 @@ const createUser = (req, res, next) => {
         avatar,
         email,
         password: hashedPassword,
-      }).then((user) => res.send(user)).catch((err) => {
-        if (err.name === 'ValidationError') {
-          res.status(errorBadReq).send({ message: 'Переданы некорректные данные при создании пользователя' });
-          return;
-        }
-        res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
-      });
+      })
+        .then((user) => res.send(user))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            throw new ErrorBadReq('Переданы некорректные данные при создании пользователя');
+          }
+        })
+        .catch(next);
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 const login = (req, res, next) => {
@@ -50,6 +67,9 @@ const login = (req, res, next) => {
     .select('+password')
     .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
+      if (!user) {
+        throw new AuthError('Неправильный пароль или email');
+      }
       bcrypt.compare(password, user.password)
         .then((isUserValid) => {
           if (isUserValid) {
@@ -65,33 +85,32 @@ const login = (req, res, next) => {
 
             res.send({ data: user.toJSON() });
           } else {
-            res.status(errorForbiddenReq).send({ message: 'Неправильные почта или пароль' });
+            throw new ErrorForbiddenReq('Неправильные почта или пароль');
           }
         });
     })
     .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(errorReqNotFound).send({ message: 'Пользователь с указанным _id не найден' });
-        return;
+        next(new ErrorReqNotFound('Пользователь с указанным _id не найден'));
       }
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(errorBadReq).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-        return;
+        next(new ErrorBadReq('Переданы некорректные данные при обновлении профиля'));
+      } else {
+        next(err);
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const id = req.user._id;
   User.findByIdAndUpdate(id, { name, about }, {
@@ -101,14 +120,13 @@ const updateUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(errorBadReq).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-        return;
+        throw new ErrorBadReq('Переданы некорректные данные при обновлении профиля');
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
-    });
+    })
+    .catch(next);
 };
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   const { avatar } = req.body;
   const id = req.user._id;
   User.findByIdAndUpdate(id, { avatar }, {
@@ -118,17 +136,17 @@ function updateAvatar(req, res) {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(errorBadReq).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-        return;
+        throw new ErrorBadReq('Переданы некорректные данные при обновлении аватара');
       }
-      res.status(errorServer).send({ message: `Произошла ошибка: ${err}` });
-    });
+    })
+    .catch(next);
 }
 
 module.exports = {
   createUser,
   login,
   getUsers,
+  getUser,
   getUserById,
   updateUser,
   updateAvatar,

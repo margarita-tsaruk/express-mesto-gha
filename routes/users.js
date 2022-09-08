@@ -4,12 +4,15 @@ const userRoutes = express.Router();
 
 const {
   getUsers,
+  getUser,
   getUserById,
   updateUser,
   updateAvatar,
 } = require('../controllers/users');
 
 userRoutes.get('/users', express.json(), getUsers);
+
+userRoutes.get('/users/me', express.json(), getUser);
 
 userRoutes.get('/users/:userId', getUserById);
 
