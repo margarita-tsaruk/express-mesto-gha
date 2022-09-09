@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
 
 const ErrorReqNotFound = require('../errors/errorReqNotFound');
@@ -25,8 +24,7 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  const userObject = jwt.verify(req.cookies.jwt);
-  const userId = userObject._id;
+  const userId = req.user._id;
   const { cardId } = req.params;
 
   Card.findById(cardId)

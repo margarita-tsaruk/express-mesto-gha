@@ -5,6 +5,7 @@ const User = require('../models/user');
 const ErrorReqNotFound = require('../errors/errorReqNotFound');
 const ErrorBadReq = require('../errors/errorBadReq');
 const ErrorForbiddenReq = require('../errors/errorForbiddenReq');
+const ErrorExistingUser = require('../errors/errorExistingUser');
 const AuthError = require('../errors/authError');
 
 const getUsers = (req, res, next) => {
@@ -38,26 +39,31 @@ const createUser = (req, res, next) => {
     password,
   } = req.body;
 
-  bcrypt.hash(password, 10)
-    .then((hashedPassword) => {
-      User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hashedPassword,
-      })
-        .then((user) => res.send(user))
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            throw new ErrorBadReq('Переданы некорректные данные при создании пользователя');
-          }
-        })
-        .catch(next);
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ErrorExistingUser('Пользователь с таким email уже существует');
+      } else {
+        bcrypt.hash(password, 10)
+          .then((hashedPassword) => {
+            User.create({
+              name,
+              about,
+              avatar,
+              email,
+              password: hashedPassword,
+            })
+              .then((newUser) => res.send(newUser))
+              .catch((err) => {
+                if (err.name === 'ValidationError') {
+                  throw new ErrorBadReq('Переданы некорректные данные при создании пользователя');
+                }
+              })
+              .catch(next);
+          });
+      }
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 const login = (req, res, next) => {
