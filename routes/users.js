@@ -22,8 +22,19 @@ userRoutes.get('/users/:userId', celebrate({
   }),
 }), getUserById);
 
-userRoutes.patch('/users/me', express.json(), updateUser);
+userRoutes.patch('/users/me', express.json(), celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), updateUser);
 
-userRoutes.patch('/users/me/avatar', express.json(), updateAvatar);
+userRoutes.patch('/users/me/avatar', express.json(), celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().required()
+      // eslint-disable-next-line no-useless-escape
+      .regex(/^https?:\/\/[w{3}]?[0-9a-z\-\.\_\~\:\/\?\#\[\]\@\!\$\&'\(\)\*\+\,\;=]+\#?$/),
+  }),
+}), updateAvatar);
 
 module.exports = userRoutes;
