@@ -37,7 +37,8 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^(https?:\/\/)?([\da-z.-]+).([a-z]{2,6}).([/\w.-]*)*\/#?$/),
+    // eslint-disable-next-line no-useless-escape
+    avatar: Joi.string().regex(/^https?:\/\/[w{3}]?[0-9a-z\-\.\_\~\:\/\?\#\[\]\@\!\$\&'\(\)\*\+\,\;=]+\#?$/),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
