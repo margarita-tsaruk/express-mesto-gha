@@ -103,7 +103,7 @@ const getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        next(new ErrorReqNotFound('Пользователь с указанным _id не найден'));
+        throw new ErrorReqNotFound('Пользователь с указанным _id не найден');
       }
       res.send(user);
     })
