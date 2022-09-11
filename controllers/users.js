@@ -71,7 +71,6 @@ const login = (req, res, next) => {
 
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
       if (!user) {
         throw new AuthError('Неправильный пароль или email');
