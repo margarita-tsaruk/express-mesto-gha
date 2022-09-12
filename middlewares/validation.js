@@ -10,7 +10,7 @@ const validateAnyId = (value, helpers) => {
 
 module.exports.validateCardId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().custom(validateAnyId),
+    userId: Joi.string().required().custom(validateAnyId),
   }),
 });
 
