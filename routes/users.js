@@ -2,6 +2,7 @@ const express = require('express');
 const { celebrate, Joi } = require('celebrate');
 
 const userRoutes = express.Router();
+const { validateUserId } = require('../middlewares/validation');
 
 const {
   getUsers,
@@ -15,11 +16,7 @@ userRoutes.get('/users', express.json(), getUsers);
 
 userRoutes.get('/users/me', express.json(), getUser);
 
-userRoutes.get('/users/:userId', celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().required().alphanum().length(16),
-  }),
-}), getUserById);
+userRoutes.get('/users/:userId', validateUserId, getUserById);
 
 userRoutes.patch('/users/me', express.json(), celebrate({
   body: Joi.object().keys({

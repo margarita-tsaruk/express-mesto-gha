@@ -2,6 +2,7 @@ const express = require('express');
 const { celebrate, Joi } = require('celebrate');
 
 const cardRoutes = express.Router();
+const { validateCardId } = require('../middlewares/validation');
 
 const {
   getCards,
@@ -22,22 +23,10 @@ cardRoutes.post('/cards', express.json(), celebrate({
   }),
 }), createCards);
 
-cardRoutes.delete('/cards/:cardId', express.json(), celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(16),
-  }),
-}), deleteCard);
+cardRoutes.delete('/cards/:cardId', express.json(), validateCardId, deleteCard);
 
-cardRoutes.put('/cards/:cardId/likes', express.json(), celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(16),
-  }),
-}), likeCard);
+cardRoutes.put('/cards/:cardId/likes', express.json(), validateCardId, likeCard);
 
-cardRoutes.delete('/cards/:cardId/likes', express.json(), celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(16),
-  }),
-}), dislikeCard);
+cardRoutes.delete('/cards/:cardId/likes', express.json(), validateCardId, dislikeCard);
 
 module.exports = cardRoutes;
