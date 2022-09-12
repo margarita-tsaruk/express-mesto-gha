@@ -45,7 +45,7 @@ const deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new ErrorBadReq('Передан некорректный id');
+        next(new ErrorBadReq('Передан некорректный id'));
       } else {
         next(err);
       }
@@ -81,7 +81,7 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new ErrorBadReq('Передан некорректный id');
+        next(new ErrorBadReq('Передан некорректный id'));
       } else {
         next(err);
       }
