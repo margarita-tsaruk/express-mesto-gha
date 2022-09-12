@@ -43,7 +43,13 @@ const deleteCard = (req, res, next) => {
           .catch(next);
       }
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new ErrorBadReq('Передан некорректный id');
+      } else {
+        next(err);
+      }
+    });
 };
 
 const likeCard = (req, res, next) => {
