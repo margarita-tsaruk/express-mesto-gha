@@ -4,7 +4,6 @@ const User = require('../models/user');
 
 const ErrorReqNotFound = require('../errors/errorReqNotFound');
 const ErrorBadReq = require('../errors/errorBadReq');
-const ErrorForbiddenReq = require('../errors/errorForbiddenReq');
 const ErrorExistingUser = require('../errors/errorExistingUser');
 const AuthError = require('../errors/authError');
 
@@ -26,8 +25,7 @@ const getUser = (req, res, next) => {
     })
     .catch((err) => {
       next(err);
-    })
-    .catch(next);
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -90,7 +88,7 @@ const login = (req, res, next) => {
 
             res.send({ data: user.toJSON() });
           } else {
-            throw new ErrorForbiddenReq('Неправильные почта или пароль');
+            throw new AuthError('Неправильные почта или пароль');
           }
         })
         .catch(next);
@@ -113,8 +111,7 @@ const getUserById = (req, res, next) => {
       } else {
         next(err);
       }
-    })
-    .catch(next);
+    });
 };
 
 const updateUser = (req, res, next) => {
@@ -127,10 +124,11 @@ const updateUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ErrorBadReq('Переданы некорректные данные при обновлении профиля');
+        next(new ErrorBadReq('Переданы некорректные данные при обновлении профиля'));
+      } else {
+        next(err);
       }
-    })
-    .catch(next);
+    });
 };
 
 function updateAvatar(req, res, next) {
@@ -143,10 +141,11 @@ function updateAvatar(req, res, next) {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ErrorBadReq('Переданы некорректные данные при обновлении аватара');
+        next(new ErrorBadReq('Переданы некорректные данные при обновлении аватара'));
+      } else {
+        next(err);
       }
-    })
-    .catch(next);
+    });
 }
 
 module.exports = {

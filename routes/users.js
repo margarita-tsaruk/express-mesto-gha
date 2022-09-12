@@ -17,8 +17,7 @@ userRoutes.get('/users/me', express.json(), getUser);
 
 userRoutes.get('/users/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required().alphanum().length(24)
-      .max(24),
+    userId: Joi.string().required().alphanum().length(16),
   }),
 }), getUserById);
 
@@ -33,7 +32,7 @@ userRoutes.patch('/users/me/avatar', express.json(), celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required()
       // eslint-disable-next-line no-useless-escape
-      .regex(/^https?:\/\/[w{3}]?[0-9a-z\-\.\_\~\:\/\?\#\[\]\@\!\$\&'\(\)\*\+\,\;=]+\#?$/),
+      .regex(/^https?:\/\/[w{3}]?[0-9a-z\-\.\_\~\:\/\?\#\[\]\!\&'\(\)\*\+\,\;=]+\#?$/),
   }),
 }), updateAvatar);
 

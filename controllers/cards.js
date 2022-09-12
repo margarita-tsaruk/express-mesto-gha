@@ -17,10 +17,11 @@ const createCards = (req, res, next) => {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ErrorBadReq('Переданы некорректные данные при создании карточки');
+        next(new ErrorBadReq('Переданы некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
-    })
-    .catch(next);
+    });
 };
 
 const deleteCard = (req, res, next) => {
