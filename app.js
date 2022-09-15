@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const {
   createUser,
   login,
@@ -32,6 +33,7 @@ main();
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(requestLogger);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -57,5 +59,6 @@ app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 app.use('*', require('./routes/notCorrectPath'));
 
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
